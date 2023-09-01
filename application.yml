@@ -1,0 +1,102 @@
+server:
+  port: ${PORT:8080}
+  shutdown: "graceful"
+eureka:
+  instance:
+    preferIpAddress: true
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
+    port: ${EUREKA_PORT:8761}
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST:localhost}:${eureka.instance.port}/eureka/
+feign:
+  httpclient:
+    max-connections-per-route: 250
+    max-connections: 750
+  client:
+    config:
+      default:
+        connectTimeout: 180000
+        readTimeout: 180000
+idp:
+  url: ${IDP_URL:http://dhaka-dev-one.centralindia.cloudapp.azure.com:8080}
+  auth-url: ${idp.url}/auth
+  token-url: ${idp.url}/auth/realms/${idp.realm}/protocol/openid-connect/token
+  realm: ekyc
+logging:
+  file:
+    path: logs
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: "90s"
+  datasource:
+    continue-on-error: true
+    initialization-mode: always
+    hikari:
+      maximum-pool-size: 9
+      minimum-idle: 3
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        #default_schema: customer
+        jdbc:
+          time_zone: UTC
+  security:
+    oauth2:
+      client:
+        provider:
+          brain-station-23:
+            user-name-attribute: preferred_username
+            issuer-uri: ${idp.url}/auth/realms/${idp.realm}
+        registration:
+          default:
+            provider: brain-station-23
+            client-id: ${spring.application.name}
+            authorization-grant-type: client_credentials
+            redirectUri: '{baseUrl}/login/oauth2/code/{registrationId}'
+            scope:
+              - openid
+              - profile
+              - email
+      resourceserver:
+        jwt:
+          issuer-uri: ${idp.url}/auth/realms/${idp.realm}
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://dhaka-dev-one.centralindia.cloudapp.azure.com:5432/postgres}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:101404.Bs}
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://dhaka-dev-one.centralindia.cloudapp.azure.com:5432/postgres}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:101404.Bs}
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_SERVER:http://dhaka-dev-one.centralindia.cloudapp.azure.com:9411}/api/v2/spans
+---

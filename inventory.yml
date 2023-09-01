@@ -1,0 +1,35 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          default:
+            client-secret: ${CC_INVENTORY:1d818b91-9226-4528-8c80-bb0af873eabf}
+  sql:
+    init:
+      enabled: true
+      data-locations: classpath*:/seed/init-*.sql
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://dhaka-dev-one.centralindia.cloudapp.azure.com:5432/postgres}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:101404.Bs}
+server:
+  tomcat:
+    max-swallow-size: 20MB
+logging:
+  level:
+    org:
+      zalando:
+        logbook: TRACE
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  security:
+    oauth2:
+      client:
+        registration:
+          default:
+            client-secret: ${CC_INVENTORY:1d818b91-9226-4528-8c80-bb0af873eabf}
+---

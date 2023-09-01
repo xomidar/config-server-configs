@@ -1,0 +1,48 @@
+server:
+  port: ${PORT:8070}
+dhaka:
+  microservices: configuration-server,edge,guardian
+spring:
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  security:
+    oauth2:
+      client:
+        registration:
+          default:
+            client-secret: ${CC_EDGE:6ed16f1d-4bd3-48e6-bef5-b344acc84c62}
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: false
+    gateway:
+      default-filters:
+        - TokenRelay
+        - RemoveRequestHeader=Cookie
+      discovery:
+        locator:
+          enabled: true
+          lowerCaseServiceId: true
+ribbon:
+  ReadTimeout: 15000
+logging:
+  level:
+    org:
+      zalando:
+        logbook: OFF
+springdoc:
+  swagger-ui:
+    configUrl: /swagger-config.json
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  security:
+    oauth2:
+      client:
+        registration:
+          default:
+            client-secret: ${CC_EDGE:6ed16f1d-4bd3-48e6-bef5-b344acc84c62}
+---
